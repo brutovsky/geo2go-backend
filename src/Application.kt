@@ -43,8 +43,7 @@ fun Application.module(testing: Boolean = false) {
     install(Authentication) {
         jwt("jwt") {
             verifier(jwtService.verifier)
-            realm = "Todo Server"
-            //Step 3 creates a method that runs each time the app needs to authenticate a call.
+            realm = "Geo2Go Server"
             validate {
                 val payload = it.payload
                 val claim = payload.getClaim("id")

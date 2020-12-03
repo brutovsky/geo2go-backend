@@ -13,16 +13,14 @@ class UserRepository: Repository {
         email: String,
         displayName: String,
         passwordHash: String) : User? {
-        var statement : InsertStatement<Number>? = null // 1
-        dbQuery { // 2
-            // 3
+        var statement : InsertStatement<Number>? = null
+        dbQuery {
             statement = Users.insert { user ->
                 user[Users.email] = email
                 user[Users.displayName] = displayName
                 user[Users.passwordHash] = passwordHash
             }
         }
-        // 4
         return rowToUser(statement?.resultedValues?.get(0))
     }
 

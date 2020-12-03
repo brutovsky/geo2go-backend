@@ -8,7 +8,7 @@ import java.util.*
 
 class JwtService {
 
-    private val issuer = "todoServer"
+    private val issuer = "geo2goServer"
     private val jwtSecret = System.getenv("JWT_SECRET")
     private val algorithm = Algorithm.HMAC512(jwtSecret)
 
@@ -26,4 +26,5 @@ class JwtService {
 
     private fun expiresAt() =
         Date(System.currentTimeMillis() + 3_600_000 * 24) // 24 hours
+
 }
