@@ -5,6 +5,7 @@ import com.brtvsk.auth.MySession
 import com.brtvsk.auth.hash
 import com.brtvsk.repository.DatabaseFactory
 import com.brtvsk.repository.UserRepository
+import com.brtvsk.routes.users
 import io.ktor.application.*
 import io.ktor.response.*
 import io.ktor.request.*
@@ -16,6 +17,8 @@ import io.ktor.auth.*
 import io.ktor.auth.jwt.*
 import io.ktor.gson.*
 import io.ktor.features.*
+
+const val API_VERSION = "/v1"
 
 fun main(args: Array<String>): Unit = io.ktor.server.netty.EngineMain.main(args)
 
@@ -58,6 +61,9 @@ fun Application.module(testing: Boolean = false) {
     }
 
     routing {
-
+        get("/") {
+            call.respondText("This application should tell you where(geo) to(2) go\nEnjoy", contentType = ContentType.Text.Plain)
+        }
+        users(db, jwtService, hashFunction)
     }
 }
