@@ -3,7 +3,10 @@ package com.brtvsk.routes
 import com.brtvsk.API_VERSION
 import com.brtvsk.auth.JwtService
 import com.brtvsk.auth.MySession
+import com.brtvsk.content.TransferUser
+import com.brtvsk.models.User
 import com.brtvsk.repository.Repository
+import com.brtvsk.repository.Users
 import io.ktor.application.application
 import io.ktor.application.call
 import io.ktor.application.log
@@ -18,6 +21,11 @@ import io.ktor.response.respondText
 import io.ktor.routing.*
 import io.ktor.sessions.sessions
 import io.ktor.sessions.set
+import org.jetbrains.exposed.exceptions.ExposedSQLException
+import org.postgresql.util.PSQLException
+import org.postgresql.util.PSQLState
+import org.postgresql.util.PSQLWarning
+import java.sql.SQLIntegrityConstraintViolationException
 import kotlin.math.sign
 
 const val USERS = "$API_VERSION/users"
@@ -53,15 +61,21 @@ fun Route.users(
         try {
             val newUser = db.addUser(email, displayName, hash)
             newUser?.userId?.let {
-                call.sessions.set(MySession(it))
-                call.respondText(
-                    jwtService.generateToken(newUser),
-                    status = HttpStatusCode.Created
-                )
+                call.respond(HttpStatusCode.Created, TransferUser(
+                        userId = newUser.userId,
+                        email = newUser.email,
+                        displayName = newUser.displayName
+                ))
+            }
+        } catch (e: ExposedSQLException){
+            application.log.error("Failed to register user", e)
+            when(e.sqlState){
+                "23505" -> call.respond(HttpStatusCode.BadRequest, "Such user already exists :/")
+                else    -> call.respond(HttpStatusCode.BadRequest, "Problems creating User :/")
             }
         } catch (e: Throwable) {
             application.log.error("Failed to register user", e)
-            call.respond(HttpStatusCode.BadRequest, "Problems creating User")
+            call.respond(HttpStatusCode.BadRequest, "Problems creating User :/")
         }
     }
 
