@@ -1,4 +1,4 @@
-package com.brtvsk.auth
+package com.brtvsk.auth.utils
 
 import io.ktor.util.*
 import javax.crypto.Mac

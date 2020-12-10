@@ -1,4 +1,4 @@
-package com.brtvsk.auth
+package com.brtvsk.auth.utils
 
 import com.auth0.jwt.JWT
 import com.auth0.jwt.JWTVerifier

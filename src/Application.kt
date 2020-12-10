@@ -1,14 +1,14 @@
 package com.brtvsk
 
-import com.brtvsk.auth.JwtService
-import com.brtvsk.auth.MySession
-import com.brtvsk.auth.hash
+import com.brtvsk.auth.utils.JwtService
+import com.brtvsk.auth.utils.MySession
+import com.brtvsk.auth.utils.hash
+import com.brtvsk.geo.repository.GeoRepository
 import com.brtvsk.repository.DatabaseFactory
 import com.brtvsk.repository.UserRepository
 import com.brtvsk.routes.users
 import io.ktor.application.*
 import io.ktor.response.*
-import io.ktor.request.*
 import io.ktor.routing.*
 import io.ktor.http.*
 import io.ktor.locations.*
@@ -34,11 +34,15 @@ fun Application.module(testing: Boolean = false) {
         }
     }
 
-    //DB init
+    // Users DB init
     DatabaseFactory.init()
-    val db = UserRepository()
+    val userRep = UserRepository()
     val jwtService = JwtService()
     val hashFunction = { s: String -> hash(s) }
+
+    // Geos DB init
+
+    val geosRep = GeoRepository()
 
     install(Authentication) {
         jwt("jwt") {
@@ -48,7 +52,7 @@ fun Application.module(testing: Boolean = false) {
                 val payload = it.payload
                 val claim = payload.getClaim("id")
                 val claimString = claim.asInt()
-                val user = db.findUser(claimString)
+                val user = userRep.findUser(claimString)
                 user
             }
         }
@@ -63,6 +67,6 @@ fun Application.module(testing: Boolean = false) {
         get("/") {
             call.respondText("This application should tell you where(geo) to(2) go\nEnjoy", contentType = ContentType.Text.Plain)
         }
-        users(db, jwtService, hashFunction)
+        users(userRep, jwtService, hashFunction)
     }
 }

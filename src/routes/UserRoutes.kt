@@ -1,13 +1,11 @@
 package com.brtvsk.routes
 
 import com.brtvsk.API_VERSION
-import com.brtvsk.auth.JwtService
-import com.brtvsk.auth.MySession
-import com.brtvsk.content.RequestUser
-import com.brtvsk.content.RespondUser
-import com.brtvsk.models.User
+import com.brtvsk.auth.utils.JwtService
+import com.brtvsk.auth.utils.MySession
+import com.brtvsk.auth.dto.UserDTO.RequestUser
+import com.brtvsk.auth.dto.UserDTO.RespondUser
 import com.brtvsk.repository.Repository
-import com.brtvsk.repository.Users
 import io.ktor.application.application
 import io.ktor.application.call
 import io.ktor.application.log
@@ -18,18 +16,10 @@ import io.ktor.locations.Location
 import io.ktor.locations.post
 import io.ktor.request.*
 import io.ktor.response.respond
-import io.ktor.response.respondText
 import io.ktor.routing.*
 import io.ktor.sessions.sessions
 import io.ktor.sessions.set
-import kotlinx.coroutines.Dispatchers
 import org.jetbrains.exposed.exceptions.ExposedSQLException
-import org.postgresql.util.PSQLException
-import org.postgresql.util.PSQLState
-import org.postgresql.util.PSQLWarning
-import java.sql.SQLIntegrityConstraintViolationException
-import kotlin.math.log
-import kotlin.math.sign
 
 const val USERS = "$API_VERSION/users"
 const val USER_LOGIN = "$USERS/login"
