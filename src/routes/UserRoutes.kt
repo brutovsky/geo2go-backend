@@ -1,6 +1,7 @@
 package com.brtvsk.routes
 
 import com.brtvsk.API_VERSION
+import com.brtvsk.auth.dto.UserDTO
 import com.brtvsk.auth.utils.JwtService
 import com.brtvsk.auth.utils.MySession
 import com.brtvsk.auth.dto.UserDTO.RequestUser
@@ -46,45 +47,58 @@ fun Route.users(
         try {
             val newUser = db.addUser(userData.email, userData.displayName, hash)
             newUser?.userId?.let {
-                call.respond(HttpStatusCode.Created, RespondUser(
+                call.sessions.set(MySession(it))
+                val respondUser = RespondUser(
                     email = newUser.email,
                     displayName = newUser.displayName,
                     userId = newUser.userId,
-                ))
+                )
+                val token = jwtService.generateToken(newUser)
+                call.respond(
+                    HttpStatusCode.Created, UserDTO.LoginRespond(
+                        user = respondUser,
+                        jwtToken = token,
+                    )
+                )
             }
-        } catch (e: ExposedSQLException){
+        } catch (e: ExposedSQLException) {
             application.log.error("Failed to register user", e)
-            when(e.sqlState){
+            when (e.sqlState) {
                 "23505" -> call.respond(HttpStatusCode.BadRequest, "Such user already exists :/")
-                else    -> call.respond(HttpStatusCode.BadRequest, "Problems creating User :/")
+                else -> call.respond(HttpStatusCode.BadRequest, "Problems creating User :/")
             }
         } catch (e: Throwable) {
             application.log.error("Failed to register user", e)
             call.respond(HttpStatusCode.BadRequest, "Problems creating User :/")
         }
     }
-
-    //TODO: make it work with json RequestUser
+    
     post<UserLoginRoute> {
-        val signinParameters = call.receive<Parameters>()
-        val password = signinParameters["password"]
-            ?: return@post call.respond(
-                HttpStatusCode.Unauthorized, "Missing Fields")
-        val email = signinParameters["email"]
-            ?: return@post call.respond(
-                HttpStatusCode.Unauthorized, "Missing Fields")
-        val hash = hashFunction(password)
+        val userData = call.receive<RequestUser>()
+        application.log.info("Requested user to login: ", userData)
+        val hash = hashFunction(userData.password)
         try {
-            val currentUser = db.findUserByEmail(email)
+            val currentUser = db.findUserByEmail(userData.email)
             currentUser?.userId?.let {
                 if (currentUser.passwordHash == hash) {
                     call.sessions.set(MySession(it))
-                    call.respond(jwtService.generateToken(currentUser))
+                    val respondUser = RespondUser(
+                        email = currentUser.email,
+                        displayName = currentUser.displayName,
+                        userId = currentUser.userId,
+                    )
+                    val token = jwtService.generateToken(currentUser)
+                    call.respond(
+                        HttpStatusCode.Created, UserDTO.LoginRespond(
+                            user = respondUser,
+                            jwtToken = token,
+                        )
+                    )
                 } else {
                     call.respond(HttpStatusCode.BadRequest, "Problems retrieving User")
                 }
             }
-        }catch (e: Throwable){
+        } catch (e: Throwable) {
             application.log.error("Failed to register user", e)
             call.respond(HttpStatusCode.BadRequest, "Problems retrieving User")
         }
