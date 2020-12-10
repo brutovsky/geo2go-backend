@@ -46,4 +46,12 @@ dependencies {
     compile "org.postgresql:postgresql:$postgres_version"
     compile "com.zaxxer:HikariCP:$hikaricp_version"
 
+    implementation("org.litote.kmongo:kmongo:4.2.3")
+    implementation("org.litote.kmongo:kmongo-coroutine:4.2.3")
+}
+
+tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).all {
+    kotlinOptions {
+        jvmTarget = "1.8"
+    }
 }
