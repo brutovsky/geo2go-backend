@@ -41,7 +41,6 @@ fun Application.module(testing: Boolean = false) {
     val hashFunction = { s: String -> hash(s) }
 
     // Geos DB init
-
     val geosRep = GeoRepository()
 
     install(Authentication) {
@@ -68,5 +67,6 @@ fun Application.module(testing: Boolean = false) {
             call.respondText("This application should tell you where(geo) to(2) go\nEnjoy", contentType = ContentType.Text.Plain)
         }
         users(userRep, jwtService, hashFunction)
+        
     }
 }
