@@ -3,7 +3,8 @@ package com.brtvsk.routes
 import com.brtvsk.API_VERSION
 import com.brtvsk.auth.JwtService
 import com.brtvsk.auth.MySession
-import com.brtvsk.content.TransferUser
+import com.brtvsk.content.RequestUser
+import com.brtvsk.content.RespondUser
 import com.brtvsk.models.User
 import com.brtvsk.repository.Repository
 import com.brtvsk.repository.Users
@@ -15,17 +16,19 @@ import io.ktor.http.Parameters
 import io.ktor.locations.KtorExperimentalLocationsAPI
 import io.ktor.locations.Location
 import io.ktor.locations.post
-import io.ktor.request.receive
+import io.ktor.request.*
 import io.ktor.response.respond
 import io.ktor.response.respondText
 import io.ktor.routing.*
 import io.ktor.sessions.sessions
 import io.ktor.sessions.set
+import kotlinx.coroutines.Dispatchers
 import org.jetbrains.exposed.exceptions.ExposedSQLException
 import org.postgresql.util.PSQLException
 import org.postgresql.util.PSQLState
 import org.postgresql.util.PSQLWarning
 import java.sql.SQLIntegrityConstraintViolationException
+import kotlin.math.log
 import kotlin.math.sign
 
 const val USERS = "$API_VERSION/users"
@@ -47,24 +50,16 @@ fun Route.users(
     hashFunction: (String) -> String
 ) {
     post<UserCreateRoute> {
-        val signupParameters = call.receive<Parameters>()
-        val password = signupParameters["password"]
-            ?: return@post call.respond(
-                HttpStatusCode.Unauthorized, "Missing Fields")
-        val displayName = signupParameters["displayName"]
-            ?: return@post call.respond(
-                HttpStatusCode.Unauthorized, "Missing Fields")
-        val email = signupParameters["email"]
-            ?: return@post call.respond(
-                HttpStatusCode.Unauthorized, "Missing Fields")
-        val hash = hashFunction(password)
+        val userData = call.receive<RequestUser>()
+        application.log.info("Requested user to create: ", userData)
+        val hash = hashFunction(userData.password)
         try {
-            val newUser = db.addUser(email, displayName, hash)
+            val newUser = db.addUser(userData.email, userData.displayName, hash)
             newUser?.userId?.let {
-                call.respond(HttpStatusCode.Created, TransferUser(
-                        userId = newUser.userId,
-                        email = newUser.email,
-                        displayName = newUser.displayName
+                call.respond(HttpStatusCode.Created, RespondUser(
+                    email = newUser.email,
+                    displayName = newUser.displayName,
+                    userId = newUser.userId,
                 ))
             }
         } catch (e: ExposedSQLException){
