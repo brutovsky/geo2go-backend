@@ -17,5 +17,10 @@ object UserDTO {
         val userId: Int?,
     ) : Serializable, Principal
 
+    data class LoginRespond(
+        val user: RespondUser,
+        val jwtToken: String
+    ) : Serializable, Principal
+
 }
 
