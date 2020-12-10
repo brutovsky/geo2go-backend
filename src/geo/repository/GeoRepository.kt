@@ -19,4 +19,9 @@ class GeoRepository:Repository{
         return geo.findOne(Geo::position eq position)
     }
 
+    override fun getAll(userId: Int): List<Geo>{
+        val found = geo.find(Geo::userId eq userId)
+        return found.toList()
+    }
+
 }

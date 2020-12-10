@@ -6,6 +6,7 @@ import com.brtvsk.auth.utils.hash
 import com.brtvsk.geo.repository.GeoRepository
 import com.brtvsk.repository.DatabaseFactory
 import com.brtvsk.repository.UserRepository
+import com.brtvsk.routes.geo
 import com.brtvsk.routes.users
 import io.ktor.application.*
 import io.ktor.response.*
@@ -41,7 +42,7 @@ fun Application.module(testing: Boolean = false) {
     val hashFunction = { s: String -> hash(s) }
 
     // Geos DB init
-    val geosRep = GeoRepository()
+    val geoRep = GeoRepository()
 
     install(Authentication) {
         jwt("jwt") {
@@ -67,6 +68,6 @@ fun Application.module(testing: Boolean = false) {
             call.respondText("This application should tell you where(geo) to(2) go\nEnjoy", contentType = ContentType.Text.Plain)
         }
         users(userRep, jwtService, hashFunction)
-        
+        geo(userRep, geoRep)
     }
 }
