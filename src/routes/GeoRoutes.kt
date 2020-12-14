@@ -24,7 +24,7 @@ class GeoGetRoute
 
 @KtorExperimentalLocationsAPI
 @Location(GEO_ALL)
-class GeoAllRoute
+class GeoAllRoutes
 
 @KtorExperimentalLocationsAPI
 @Location(GEO_CREATE)
@@ -32,12 +32,12 @@ class GeoCreateRoute
 
 @KtorExperimentalLocationsAPI
 fun Route.geo(
-    userRep: com.brtvsk.repository.Repository,
+    userRep: com.brtvsk.auth.repository.Repository,
     geoRep: Repository
 ) {
     authenticate("jwt") {
 
-        get<GeoAllRoute>{
+        get<GeoAllRoutes>{
             val user = call.sessions.get<MySession>()?.let { userRep.findUser(it.userId) }
             if (user == null) {
                 call.respond(HttpStatusCode.BadRequest, "Problems retrieving User")

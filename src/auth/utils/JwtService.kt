@@ -3,7 +3,7 @@ package com.brtvsk.auth.utils
 import com.auth0.jwt.JWT
 import com.auth0.jwt.JWTVerifier
 import com.auth0.jwt.algorithms.Algorithm
-import com.brtvsk.models.User
+import com.brtvsk.auth.models.User
 import java.util.*
 
 class JwtService {

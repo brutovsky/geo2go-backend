@@ -3,9 +3,9 @@ package com.brtvsk
 import com.brtvsk.auth.utils.JwtService
 import com.brtvsk.auth.utils.MySession
 import com.brtvsk.auth.utils.hash
+import com.brtvsk.auth.repository.DatabaseFactory
+import com.brtvsk.auth.repository.UserRepository
 import com.brtvsk.geo.repository.GeoRepository
-import com.brtvsk.repository.DatabaseFactory
-import com.brtvsk.repository.UserRepository
 import com.brtvsk.routes.geo
 import com.brtvsk.routes.users
 import io.ktor.application.*

@@ -1,4 +1,4 @@
-package com.brtvsk.repository
+package com.brtvsk.auth.repository
 
 import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
@@ -15,6 +15,7 @@ object DatabaseFactory {
 
         transaction {
             SchemaUtils.create(Users)
+            SchemaUtils.create(Avatars)
         }
     }
 
