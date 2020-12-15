@@ -9,6 +9,7 @@ interface Repository {
                         passwordHash: String): User?
     suspend fun findUser(userId: Int): User?
     suspend fun findUserByEmail(email: String): User?
+    suspend fun setUsername(userId: Int, username:String): Int?
     suspend fun setAvatar(userId: Int, avatar:String): Int?
     suspend fun addAvatar(userId: Int, avatar:String): String?
     suspend fun getAvatars(userId: Int): List<String>

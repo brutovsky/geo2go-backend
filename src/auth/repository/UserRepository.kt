@@ -37,6 +37,16 @@ class UserRepository: Repository {
             .map { rowToUser(it) }.singleOrNull()
     }
 
+    override suspend fun setUsername(userId:Int, username: String) : Int? {
+        var result:Int? = null
+        dbQuery {
+            result = Users.update({ Users.userId eq userId}) {
+                it[Users.displayName] = username
+            }
+        }
+        return result
+    }
+
     override suspend fun setAvatar(userId:Int, avatar: String) : Int? {
         var result:Int? = null
         dbQuery {

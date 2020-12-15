@@ -26,6 +26,7 @@ const val USER_LOGIN = "$USERS/login"
 const val USER_CREATE = "$USERS/create"
 const val USER_AVATARS = "$USERS/avatars"
 const val USER_SET_AVATAR = "$USERS/avatar"
+const val USER_SET_USERNAME = "$USERS/username"
 
 @KtorExperimentalLocationsAPI
 @Location(USER_LOGIN)
@@ -42,6 +43,10 @@ class UserAvatarsRoute
 @KtorExperimentalLocationsAPI
 @Location(USER_SET_AVATAR)
 class UserSetAvatarRoute
+
+@KtorExperimentalLocationsAPI
+@Location(USER_SET_USERNAME)
+class UserSetUsernameRoute
 
 @KtorExperimentalLocationsAPI
 fun Route.users(
@@ -148,6 +153,22 @@ fun Route.users(
             } catch (e: Throwable) {
                 application.log.error("Failed to set Avatar", e)
                 call.respond(HttpStatusCode.BadRequest, "Problems setting Avatar")
+            }
+        }
+        post<UserSetUsernameRoute>{
+            val params = call.receive<Parameters>()
+            val avatar = params["username"]
+                ?: return@post call.respond(
+                    HttpStatusCode.BadRequest, "Missing Fields"
+                )
+            val user = call.sessions.get<MySession>()?.let { db.findUser(it.userId) }
+                ?: return@post call.respond(HttpStatusCode.BadRequest, "Problems retrieving User")
+            try {
+                db.setUsername(user.userId, avatar)
+                call.respond(HttpStatusCode.OK)
+            } catch (e: Throwable) {
+                application.log.error("Failed to set Username", e)
+                call.respond(HttpStatusCode.BadRequest, "Problems setting Username")
             }
         }
     }
