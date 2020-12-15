@@ -12,7 +12,7 @@ import io.ktor.application.application
 import io.ktor.application.call
 import io.ktor.application.log
 import io.ktor.auth.*
-import io.ktor.http.HttpStatusCode
+import io.ktor.http.*
 import io.ktor.locations.*
 import io.ktor.request.*
 import io.ktor.response.respond
@@ -25,6 +25,7 @@ const val USERS = "$API_VERSION/users"
 const val USER_LOGIN = "$USERS/login"
 const val USER_CREATE = "$USERS/create"
 const val USER_AVATARS = "$USERS/avatars"
+const val USER_SET_AVATAR = "$USERS/avatar"
 
 @KtorExperimentalLocationsAPI
 @Location(USER_LOGIN)
@@ -39,6 +40,10 @@ class UserCreateRoute
 class UserAvatarsRoute
 
 @KtorExperimentalLocationsAPI
+@Location(USER_SET_AVATAR)
+class UserSetAvatarRoute
+
+@KtorExperimentalLocationsAPI
 fun Route.users(
     db: Repository,
     jwtService: JwtService,
@@ -51,9 +56,11 @@ fun Route.users(
         try {
             val newUser = db.addUser(userData.email, userData.displayName, Avatar.Pepe.name, hash)
             newUser?.userId?.let {
-                val avatar = db.addAvatar(newUser.userId, newUser.avatar)
-                print(avatar)
                 call.sessions.set(MySession(it))
+                db.addAvatar(newUser.userId, Avatar.Pepe.name)
+                db.addAvatar(newUser.userId, Avatar.Cheems.name)
+                db.addAvatar(newUser.userId, Avatar.Geco.name)
+                db.addAvatar(newUser.userId, Avatar.Default.name)
                 val respondUser = RespondUser(
                     email = newUser.email,
                     displayName = newUser.displayName,
@@ -79,7 +86,7 @@ fun Route.users(
             call.respond(HttpStatusCode.BadRequest, "Problems creating User :/")
         }
     }
-    
+
     post<UserLoginRoute> {
         val userData = call.receive<RequestUser>()
         application.log.info("Requested user to login: ", userData)
@@ -113,7 +120,7 @@ fun Route.users(
     }
 
     authenticate("jwt") {
-        get<UserAvatarsRoute>{
+        get<UserAvatarsRoute> {
             val user = call.sessions.get<MySession>()?.let { db.findUser(it.userId) }
             if (user == null) {
                 call.respond(HttpStatusCode.BadRequest, "Problems retrieving User")
@@ -125,6 +132,22 @@ fun Route.users(
             } catch (e: Throwable) {
                 application.log.error("Failed to get Avatars", e)
                 call.respond(HttpStatusCode.BadRequest, "Problems getting Avatars")
+            }
+        }
+        post<UserSetAvatarRoute> {
+            val params = call.receive<Parameters>()
+            val avatar = params["avatar"]
+                ?: return@post call.respond(
+                    HttpStatusCode.BadRequest, "Missing Fields"
+                )
+            val user = call.sessions.get<MySession>()?.let { db.findUser(it.userId) }
+                ?: return@post call.respond(HttpStatusCode.BadRequest, "Problems retrieving User")
+            try {
+                db.setAvatar(user.userId, avatar)
+                call.respond(HttpStatusCode.OK)
+            } catch (e: Throwable) {
+                application.log.error("Failed to set Avatar", e)
+                call.respond(HttpStatusCode.BadRequest, "Problems setting Avatar")
             }
         }
     }
