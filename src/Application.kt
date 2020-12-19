@@ -4,8 +4,11 @@ import com.brtvsk.auth.utils.JwtService
 import com.brtvsk.auth.utils.MySession
 import com.brtvsk.auth.utils.hash
 import com.brtvsk.auth.repository.DatabaseFactory
-import com.brtvsk.auth.repository.UserRepository
-import com.brtvsk.geo.repository.GeoRepository
+import com.brtvsk.auth.service.UserService
+import com.brtvsk.geo.MongoDB.MongoDB
+import com.brtvsk.geo.MongoDB.MongoDB.mongoDB
+import com.brtvsk.geo.models.GeoType
+import com.brtvsk.geo.service.GeoService
 import com.brtvsk.routes.geo
 import com.brtvsk.routes.users
 import io.ktor.application.*
@@ -35,14 +38,22 @@ fun Application.module(testing: Boolean = false) {
         }
     }
 
+    /*install(DataConversion) {
+        convert(GeoType::class) {
+            encode { if (it == null) emptyList() else listOf((it as GeoType).name.toLowerCase()) }
+            decode { values, type -> GeoType.values().first { it.name.toLowerCase() in values } }
+        }
+    }*/
+
     // Users DB init
     DatabaseFactory.init()
-    val userRep = UserRepository()
+    MongoDB.init()
     val jwtService = JwtService()
     val hashFunction = { s: String -> hash(s) }
 
     // Geos DB init
-    val geoRep = GeoRepository()
+    val userService = UserService()
+    val geoRepository = GeoService()
 
     install(Authentication) {
         jwt("jwt") {
@@ -52,7 +63,7 @@ fun Application.module(testing: Boolean = false) {
                 val payload = it.payload
                 val claim = payload.getClaim("id")
                 val claimString = claim.asInt()
-                val user = userRep.findUser(claimString)
+                val user = userService.findUserById(claimString)
                 user
             }
         }
@@ -67,7 +78,7 @@ fun Application.module(testing: Boolean = false) {
         get("/") {
             call.respondText("This application should tell you where(geo) to(2) go\nEnjoy", contentType = ContentType.Text.Plain)
         }
-        users(userRep, jwtService, hashFunction)
-        geo(userRep, geoRep)
+        users(userService, jwtService, hashFunction)
+        geo(geoRepository)
     }
 }

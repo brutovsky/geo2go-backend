@@ -12,9 +12,9 @@ object UserDTO {
     ) : Serializable, Principal
 
     data class RespondUser(
-        val email: String,
-        val displayName: String,
-        val avatar: String,
+        val email: String?,
+        val displayName: String?,
+        val avatar: String?,
         val userId: Int?,
     ) : Serializable, Principal
 

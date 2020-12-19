@@ -27,31 +27,23 @@ class UserRepository: Repository {
         return rowToUser(statement?.resultedValues?.get(0))
     }
 
-    override suspend fun findUser(userId: Int) = dbQuery {
+    override suspend fun findUserById(userId: Int) = dbQuery {
         Users.select { Users.userId.eq(userId) }
             .map { rowToUser(it) }.singleOrNull()
     }
 
-    override suspend fun findUserByEmail(email: String)= dbQuery {
+    override suspend fun findUserByEmail(email: String) = dbQuery {
         Users.select { Users.email.eq(email) }
             .map { rowToUser(it) }.singleOrNull()
     }
 
-    override suspend fun setUsername(userId:Int, username: String) : Int? {
+    override suspend fun updateUser(user:User) : Int? {
         var result:Int? = null
         dbQuery {
-            result = Users.update({ Users.userId eq userId}) {
-                it[Users.displayName] = username
-            }
-        }
-        return result
-    }
-
-    override suspend fun setAvatar(userId:Int, avatar: String) : Int? {
-        var result:Int? = null
-        dbQuery {
-            result = Users.update({ Users.userId eq userId}) {
-                it[Users.avatar] = avatar
+            result = Users.update({ Users.userId eq user.userId}) {
+                if(user.email != null)it[Users.email] = user.email
+                if(user.displayName != null)it[Users.displayName] = user.displayName
+                if(user.avatar != null)it[Users.avatar] = user.avatar
             }
         }
         return result

@@ -7,7 +7,9 @@ import com.brtvsk.auth.utils.MySession
 import com.brtvsk.auth.dto.UserDTO.RequestUser
 import com.brtvsk.auth.dto.UserDTO.RespondUser
 import com.brtvsk.auth.models.Avatar
+import com.brtvsk.auth.models.User
 import com.brtvsk.auth.repository.Repository
+import com.brtvsk.auth.service.UserService
 import io.ktor.application.application
 import io.ktor.application.call
 import io.ktor.application.log
@@ -50,7 +52,7 @@ class UserSetUsernameRoute
 
 @KtorExperimentalLocationsAPI
 fun Route.users(
-    db: Repository,
+    userService: UserService,
     jwtService: JwtService,
     hashFunction: (String) -> String
 ) {
@@ -59,13 +61,13 @@ fun Route.users(
         application.log.info("Requested user to create: ", userData)
         val hash = hashFunction(userData.password)
         try {
-            val newUser = db.addUser(userData.email, userData.displayName, Avatar.Pepe.name, hash)
+            val newUser = userService.createUser(userData.email, userData.displayName, Avatar.Pepe.name, hash)
             newUser?.userId?.let {
                 call.sessions.set(MySession(it))
-                db.addAvatar(newUser.userId, Avatar.Pepe.name)
-                db.addAvatar(newUser.userId, Avatar.Cheems.name)
-                db.addAvatar(newUser.userId, Avatar.Geco.name)
-                db.addAvatar(newUser.userId, Avatar.Default.name)
+                userService.addAvatar(newUser.userId, Avatar.Pepe.name)
+                userService.addAvatar(newUser.userId, Avatar.Cheems.name)
+                userService.addAvatar(newUser.userId, Avatar.Geco.name)
+                userService.addAvatar(newUser.userId, Avatar.Default.name)
                 val respondUser = RespondUser(
                     email = newUser.email,
                     displayName = newUser.displayName,
@@ -97,7 +99,7 @@ fun Route.users(
         application.log.info("Requested user to login: ", userData)
         val hash = hashFunction(userData.password)
         try {
-            val currentUser = db.findUserByEmail(userData.email)
+            val currentUser = userService.findUserByEmail(userData.email)
             currentUser?.userId?.let {
                 if (currentUser.passwordHash == hash) {
                     call.sessions.set(MySession(it))
@@ -126,13 +128,14 @@ fun Route.users(
 
     authenticate("jwt") {
         get<UserAvatarsRoute> {
-            val user = call.sessions.get<MySession>()?.let { db.findUser(it.userId) }
+            //application.log.info(context.principal<User>()?.email)
+            val user = call.sessions.get<MySession>()?.let { userService.findUserById(it.userId) }
             if (user == null) {
                 call.respond(HttpStatusCode.BadRequest, "Problems retrieving User")
                 return@get
             }
             try {
-                val avatars = db.getAvatars(user.userId)
+                val avatars = userService.getAvatars(user.userId)
                 call.respond(avatars)
             } catch (e: Throwable) {
                 application.log.error("Failed to get Avatars", e)
@@ -145,10 +148,10 @@ fun Route.users(
                 ?: return@post call.respond(
                     HttpStatusCode.BadRequest, "Missing Fields"
                 )
-            val user = call.sessions.get<MySession>()?.let { db.findUser(it.userId) }
+            val user = call.sessions.get<MySession>()?.let { userService.findUserById(it.userId) }
                 ?: return@post call.respond(HttpStatusCode.BadRequest, "Problems retrieving User")
             try {
-                db.setAvatar(user.userId, avatar)
+                userService.setAvatar(user.userId, avatar)
                 call.respond(HttpStatusCode.OK)
             } catch (e: Throwable) {
                 application.log.error("Failed to set Avatar", e)
@@ -161,10 +164,10 @@ fun Route.users(
                 ?: return@post call.respond(
                     HttpStatusCode.BadRequest, "Missing Fields"
                 )
-            val user = call.sessions.get<MySession>()?.let { db.findUser(it.userId) }
+            val user = call.sessions.get<MySession>()?.let { userService.findUserById(it.userId) }
                 ?: return@post call.respond(HttpStatusCode.BadRequest, "Problems retrieving User")
             try {
-                db.setUsername(user.userId, avatar)
+                userService.setUsername(user.userId, avatar)
                 call.respond(HttpStatusCode.OK)
             } catch (e: Throwable) {
                 application.log.error("Failed to set Username", e)
