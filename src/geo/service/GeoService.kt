@@ -40,6 +40,10 @@ class GeoService {
         return geoRepository.getAll(userId)
     }
 
+    suspend fun setFavGeoTags(geoTags: List<Int>): Set<GeoTag>{
+        return geoTagsRepository.getAll().toSet()
+    }
+
     suspend fun getAllGeoTags(): Set<GeoTag>{
         return geoTagsRepository.getAll().toSet()
     }
