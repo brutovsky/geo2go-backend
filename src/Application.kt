@@ -39,7 +39,6 @@ fun Application.module(testing: Boolean = false) {
 
     // Users DB init
     DatabaseFactory.init()
-    MongoDB.init()
     val jwtService = JwtService()
     val hashFunction = { s: String -> hash(s) }
 

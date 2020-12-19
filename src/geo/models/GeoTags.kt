@@ -3,6 +3,7 @@ package com.brtvsk.geo.models
 data class GeoTag(
     val tag:String,
     val type:GeoType? = null,
+    val id:Int? = null,
 )
 
 val geoTags:List<GeoTag> = listOf(

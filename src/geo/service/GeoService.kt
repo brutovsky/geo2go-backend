@@ -2,18 +2,14 @@ package com.brtvsk.geo.service
 
 import com.brtvsk.auth.models.User
 import com.brtvsk.auth.models.VisitedGeo
+import com.brtvsk.auth.repository.GeoTagsRepository
 import com.brtvsk.auth.repository.UserRepository
 import com.brtvsk.geo.dto.GeoDTO
 import com.brtvsk.geo.models.Geo
 import com.brtvsk.geo.models.GeoTag
 import com.brtvsk.geo.models.Point
 import com.brtvsk.geo.repository.GeoRepository
-import com.brtvsk.geo.repository.GeoTagsRepository
-import io.ktor.application.*
-import io.ktor.http.*
-import io.ktor.response.*
 import org.bson.types.ObjectId
-import org.litote.kmongo.util.idValue
 
 class GeoService {
 
