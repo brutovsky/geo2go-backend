@@ -6,8 +6,6 @@ import com.brtvsk.auth.utils.hash
 import com.brtvsk.auth.repository.DatabaseFactory
 import com.brtvsk.auth.service.UserService
 import com.brtvsk.geo.MongoDB.MongoDB
-import com.brtvsk.geo.MongoDB.MongoDB.mongoDB
-import com.brtvsk.geo.models.GeoType
 import com.brtvsk.geo.service.GeoService
 import com.brtvsk.routes.geo
 import com.brtvsk.routes.users
@@ -29,21 +27,14 @@ fun main(args: Array<String>): Unit = io.ktor.server.netty.EngineMain.main(args)
 @Suppress("unused") // Referenced in application.conf
 @kotlin.jvm.JvmOverloads
 fun Application.module(testing: Boolean = false) {
-    install(Locations) {
-    }
+
+    install(Locations) {}
 
     install(Sessions) {
         cookie<MySession>("MY_SESSION") {
             cookie.extensions["SameSite"] = "lax"
         }
     }
-
-    /*install(DataConversion) {
-        convert(GeoType::class) {
-            encode { if (it == null) emptyList() else listOf((it as GeoType).name.toLowerCase()) }
-            decode { values, type -> GeoType.values().first { it.name.toLowerCase() in values } }
-        }
-    }*/
 
     // Users DB init
     DatabaseFactory.init()

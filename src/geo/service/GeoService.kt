@@ -8,6 +8,7 @@ import com.brtvsk.geo.models.GeoTag
 import com.brtvsk.geo.models.Point
 import com.brtvsk.geo.repository.GeoRepository
 import com.brtvsk.geo.repository.GeoTagsRepository
+import org.bson.types.ObjectId
 
 class GeoService {
 
@@ -24,6 +25,10 @@ class GeoService {
         val point = Point(coordinates = listOf(geoData.lat,geoData.lng))
         val tags = geoData.tags.toSet()
         return geoRepository.addGeo(userId, point, geoData.type, tags, geoData.raiting, geoData.description)
+    }
+
+    suspend fun getGeo(geoId: ObjectId): Geo? {
+        return geoRepository.findGeo(geoId)
     }
 
     suspend fun findGeo(point: Point): Geo? {

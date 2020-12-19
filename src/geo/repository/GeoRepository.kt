@@ -4,6 +4,7 @@ import com.brtvsk.geo.MongoDB.MongoDB
 import com.brtvsk.geo.models.Geo
 import com.brtvsk.geo.models.GeoType
 import com.brtvsk.geo.models.Point
+import org.bson.types.ObjectId
 import org.litote.kmongo.*
 import org.litote.kmongo.id.ObjectIdGenerator
 
@@ -21,6 +22,10 @@ class GeoRepository:Repository{
 
     override suspend fun findGeo(point:Point): Geo? {
         return geo.findOne(Geo::point eq point)
+    }
+
+    override suspend fun findGeo(geoId: ObjectId): Geo? {
+        return geo.findOne(Geo::_id eq geoId)
     }
 
     override suspend fun getAll(userId: Int): List<Geo>{

@@ -15,11 +15,13 @@ import io.ktor.request.*
 import io.ktor.response.*
 import io.ktor.routing.*
 import io.ktor.sessions.*
+import org.bson.types.ObjectId
 
 const val GEO = "$API_VERSION/geo"
 const val GEO_GET = "$GEO/get"
 const val GEO_ALL = "$GEO/all"
 const val GEO_CREATE = "$GEO/create"
+const val GEO_CHECK_IN = "$GEO/checkin"
 
 const val GEO_ALL_GEOTYPES = "$GEO/geotypes"
 const val GEO_ALL_GEOTAGS = "$GEO/geotags"
@@ -35,6 +37,10 @@ class GeoAllRoutes
 @KtorExperimentalLocationsAPI
 @Location(GEO_CREATE)
 class GeoCreateRoute
+
+@KtorExperimentalLocationsAPI
+@Location(GEO_CHECK_IN)
+class GeoCheckInRoute
 
 @KtorExperimentalLocationsAPI
 @Location(GEO_ALL_GEOTYPES)
@@ -62,6 +68,18 @@ fun Route.geo(
             } catch (e: Throwable) {
                 application.log.error("Failed to get Geos", e)
                 call.respond(HttpStatusCode.BadRequest, "Problems getting Geos")
+            }
+        }
+
+        post<GeoCheckInRoute> {
+            val user = context.principal<User>()
+                ?: return@post call.respond(HttpStatusCode.BadRequest, "Problems retrieving User")
+
+            val geoId = call.receive<ObjectId>()
+
+            val geo = geoService.getGeo(geoId)
+            geo?.let {
+                call.respond(HttpStatusCode.OK)
             }
         }
 
