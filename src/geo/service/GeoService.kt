@@ -41,7 +41,7 @@ class GeoService {
     }
 
     suspend fun getAllGeoTags(): Set<GeoTag>{
-        return geoTagsRepository.getAll()
+        return geoTagsRepository.getAll().toSet()
     }
 
     suspend fun visitGeo(userId: Int, geoId: String) : VisitedGeo?{
