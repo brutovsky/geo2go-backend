@@ -25,4 +25,9 @@ object GeoDTO {
         val description: String,
     )
 
+    data class RespondVisitedGeo(
+        val geo:RespondGeo,
+        val counter:Int
+    )
+
 }

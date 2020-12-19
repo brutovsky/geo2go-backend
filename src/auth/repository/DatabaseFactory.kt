@@ -1,5 +1,8 @@
 package com.brtvsk.auth.repository
 
+import com.brtvsk.auth.repository.tables.Avatars
+import com.brtvsk.auth.repository.tables.Users
+import com.brtvsk.auth.repository.tables.VisitedGeos
 import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
 import kotlinx.coroutines.Dispatchers
@@ -16,6 +19,7 @@ object DatabaseFactory {
         transaction {
             SchemaUtils.create(Users)
             SchemaUtils.create(Avatars)
+            SchemaUtils.create(VisitedGeos)
         }
     }
 

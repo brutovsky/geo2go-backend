@@ -1,4 +1,4 @@
-package com.brtvsk.auth.repository
+package com.brtvsk.auth.repository.tables
 
 import org.jetbrains.exposed.sql.Column
 import org.jetbrains.exposed.sql.Table

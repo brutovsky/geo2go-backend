@@ -23,6 +23,8 @@ const val GEO_GET = "$GEO/get"
 const val GEO_ALL = "$GEO/all"
 const val GEO_CREATE = "$GEO/create"
 const val GEO_CHECK_IN = "$GEO/checkin"
+const val GEO_ALL_VISITED_GEOS = "$GEO_ALL/visited"
+const val GEO_VISITED_GEOS = "$GEO/visited"
 
 const val GEO_ALL_GEOTYPES = "$GEO/geotypes"
 const val GEO_ALL_GEOTAGS = "$GEO/geotags"
@@ -42,6 +44,14 @@ class GeoCreateRoute
 @KtorExperimentalLocationsAPI
 @Location(GEO_CHECK_IN)
 class GeoCheckInRoute
+
+@KtorExperimentalLocationsAPI
+@Location(GEO_ALL_VISITED_GEOS)
+class GeoAllVisitedRoute
+
+@KtorExperimentalLocationsAPI
+@Location(GEO_VISITED_GEOS)
+class GeoVisitedRoute
 
 @KtorExperimentalLocationsAPI
 @Location(GEO_ALL_GEOTYPES)
@@ -73,11 +83,48 @@ fun Route.geo(
             }
         }
 
+        get<GeoAllVisitedRoute>{
+            val user = call.sessions.get<MySession>()?.let { geoService.findUser(it.userId) }
+            if (user == null) {
+                call.respond(HttpStatusCode.BadRequest, "Problems retrieving User")
+                return@get
+            }
+            try {
+                val geos = geoService.getAllVisited(user.userId)
+                call.respond(geoService.visitedToGeos(geos))
+            } catch (e: Throwable) {
+                application.log.error("Failed to get Geos", e)
+                call.respond(HttpStatusCode.BadRequest, "Problems getting Geos")
+            }
+        }
+
+        get<GeoVisitedRoute>{
+            val user = call.sessions.get<MySession>()?.let { geoService.findUser(it.userId) }
+            if (user == null) {
+                call.respond(HttpStatusCode.BadRequest, "Problems retrieving User")
+                return@get
+            }
+            try {
+                val geoId: String = call.request.queryParameters["geoId"] ?: return@get call.respond(
+                    HttpStatusCode.BadRequest, "Missing query parameters :/"
+                )
+                val geo = geoService.getVisited(user.userId, geoId) ?: return@get call.respond(
+                    HttpStatusCode.BadRequest, "Problems getting visited geo :/"
+                )
+                call.respond(geo)
+            } catch (e: Throwable) {
+                application.log.error("Failed to get VisitedGeo", e)
+                call.respond(HttpStatusCode.BadRequest, "Problems getting VisitedGeo")
+            }
+        }
+
         post<GeoCheckInRoute> {
             val user = context.principal<User>()
                 ?: return@post call.respond(HttpStatusCode.BadRequest, "Problems retrieving User")
 
             val geoId = call.receive<ObjectId>()
+
+            geoService.visitGeo(user.userId, geoId.toHexString())
 
             avatarProgressHandler.handleCheckIn(geoId)
 

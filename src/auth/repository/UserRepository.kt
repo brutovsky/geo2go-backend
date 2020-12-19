@@ -1,12 +1,14 @@
 package com.brtvsk.auth.repository
 
 import com.brtvsk.auth.models.User
+import com.brtvsk.auth.models.VisitedGeo
 import com.brtvsk.auth.repository.DatabaseFactory.dbQuery
-import org.jetbrains.exposed.sql.ResultRow
-import org.jetbrains.exposed.sql.insert
-import org.jetbrains.exposed.sql.select
+import com.brtvsk.auth.repository.tables.Avatars
+import com.brtvsk.auth.repository.tables.Users
+import com.brtvsk.auth.repository.tables.VisitedGeos
+import org.jetbrains.exposed.sql.*
+import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.statements.InsertStatement
-import org.jetbrains.exposed.sql.update
 
 class UserRepository: Repository {
 

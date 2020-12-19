@@ -1,7 +1,9 @@
 package com.brtvsk.auth.service
 
 import com.brtvsk.auth.models.User
+import com.brtvsk.auth.models.VisitedGeo
 import com.brtvsk.auth.repository.UserRepository
+import io.ktor.application.*
 
 class UserService {
 
