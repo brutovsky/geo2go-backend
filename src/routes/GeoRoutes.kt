@@ -3,6 +3,7 @@ package com.brtvsk.routes
 import com.brtvsk.API_VERSION
 import com.brtvsk.auth.models.User
 import com.brtvsk.auth.utils.MySession
+import com.brtvsk.avatar.handler.AvatarProgressHandler
 import com.brtvsk.geo.dto.GeoDTO
 import com.brtvsk.geo.models.GeoType
 import com.brtvsk.geo.repository.Repository
@@ -52,7 +53,8 @@ class GeoAllGeoTagsRoute
 
 @KtorExperimentalLocationsAPI
 fun Route.geo(
-    geoService: GeoService
+    geoService: GeoService,
+    avatarProgressHandler: AvatarProgressHandler
 ) {
     authenticate("jwt") {
 
@@ -76,6 +78,8 @@ fun Route.geo(
                 ?: return@post call.respond(HttpStatusCode.BadRequest, "Problems retrieving User")
 
             val geoId = call.receive<ObjectId>()
+
+            avatarProgressHandler.handleCheckIn(geoId)
 
             val geo = geoService.getGeo(geoId)
             geo?.let {

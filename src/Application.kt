@@ -5,6 +5,7 @@ import com.brtvsk.auth.utils.MySession
 import com.brtvsk.auth.utils.hash
 import com.brtvsk.auth.repository.DatabaseFactory
 import com.brtvsk.auth.service.UserService
+import com.brtvsk.avatar.handler.AvatarProgressHandler
 import com.brtvsk.geo.MongoDB.MongoDB
 import com.brtvsk.geo.service.GeoService
 import com.brtvsk.routes.geo
@@ -44,7 +45,8 @@ fun Application.module(testing: Boolean = false) {
 
     // Geos DB init
     val userService = UserService()
-    val geoRepository = GeoService()
+    val geoService = GeoService()
+    val avatarProgressHandler = AvatarProgressHandler(geoService)
 
     install(Authentication) {
         jwt("jwt") {
@@ -70,6 +72,6 @@ fun Application.module(testing: Boolean = false) {
             call.respondText("This application should tell you where(geo) to(2) go\nEnjoy", contentType = ContentType.Text.Plain)
         }
         users(userService, jwtService, hashFunction)
-        geo(geoRepository)
+        geo(geoService, avatarProgressHandler)
     }
 }
