@@ -6,5 +6,5 @@ import org.jetbrains.exposed.sql.Table
 object GeoTags : Table() {
     val id : Column<Int> = integer("id").autoIncrement().primaryKey()
     val name = text("name")
-    val type = integer("type").nullable()
+    val type = text("type").nullable()
 }

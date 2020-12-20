@@ -7,9 +7,15 @@ data class GeoTag(
 )
 
 val geoTags:List<GeoTag> = listOf(
-    GeoTag("spicy",GeoType.Cafe),
-    GeoTag("chinese",GeoType.Cafe),
-    GeoTag("ukrainian",GeoType.Cafe),
+    GeoTag("spicy",GeoType.Food),
+    GeoTag("chinese",GeoType.Food),
+    GeoTag("ukrainian",GeoType.Food),
+    GeoTag("funny",GeoType.Entertainment),
+    GeoTag("sadistic",GeoType.Entertainment),
+    GeoTag("relax",GeoType.Nature),
+    GeoTag("motivating",GeoType.Sports),
+    GeoTag("cheap",GeoType.Store),
     GeoTag("cool"),
     GeoTag("not good"),
+    GeoTag("bullshit"),
 )

@@ -29,6 +29,8 @@ const val USER_CREATE = "$USERS/create"
 const val USER_AVATARS = "$USERS/avatars"
 const val USER_SET_AVATAR = "$USERS/avatar"
 const val USER_SET_USERNAME = "$USERS/username"
+const val USER_SET_FAV_TAGS = "$USERS/favtags"
+const val USER_GET_FAV_TAGS = "$USERS/favtags"
 
 @KtorExperimentalLocationsAPI
 @Location(USER_LOGIN)
@@ -49,6 +51,14 @@ class UserSetAvatarRoute
 @KtorExperimentalLocationsAPI
 @Location(USER_SET_USERNAME)
 class UserSetUsernameRoute
+
+@KtorExperimentalLocationsAPI
+@Location(USER_SET_FAV_TAGS)
+class UserSetFavTagsRoute
+
+@KtorExperimentalLocationsAPI
+@Location(USER_GET_FAV_TAGS)
+class UserGetFavTagsRoute
 
 @KtorExperimentalLocationsAPI
 fun Route.users(
@@ -172,6 +182,29 @@ fun Route.users(
             } catch (e: Throwable) {
                 application.log.error("Failed to set Username", e)
                 call.respond(HttpStatusCode.BadRequest, "Problems setting Username")
+            }
+        }
+        post<UserSetFavTagsRoute>{
+            val tagsIds = call.receive<List<Int>>()
+            val user = call.sessions.get<MySession>()?.let { userService.findUserById(it.userId) }
+                ?: return@post call.respond(HttpStatusCode.BadRequest, "Problems retrieving User")
+            try {
+                val res = userService.setFavTags(user.userId, tagsIds)
+                call.respond(HttpStatusCode.OK, res)
+            } catch (e: Throwable) {
+                application.log.error("Failed to set FavUserTags", e)
+                call.respond(HttpStatusCode.BadRequest, "Problems setting FavUserTags")
+            }
+        }
+        get<UserGetFavTagsRoute>{
+            val user = call.sessions.get<MySession>()?.let { userService.findUserById(it.userId) }
+                ?: return@get call.respond(HttpStatusCode.BadRequest, "Problems retrieving User")
+            try {
+                val res = userService.getFavTags(user.userId)
+                call.respond(HttpStatusCode.OK, res)
+            } catch (e: Throwable) {
+                application.log.error("Failed to get FavTags", e)
+                call.respond(HttpStatusCode.BadRequest, "Problems getting FavTags")
             }
         }
     }

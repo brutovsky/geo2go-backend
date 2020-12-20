@@ -19,7 +19,7 @@ class GeoTagsRepository {
         return GeoTag(
             id = row[GeoTags.id],
             tag = row[GeoTags.name],
-            type = GeoType.valueOf(row[GeoTags.type].toString()),
+            type = row[GeoTags.type]?.let { GeoType.valueOf(it) },
         )
     }
 

@@ -25,7 +25,7 @@ object DatabaseFactory {
                 SchemaUtils.create(GeoTags)
                 GeoTags.batchInsert(geoTags) { (name, type) ->
                     this[GeoTags.name] = name
-                    this[GeoTags.type] = type?.ordinal
+                    this[GeoTags.type] = type?.name
                 }
             }
             SchemaUtils.create(UserTags)
