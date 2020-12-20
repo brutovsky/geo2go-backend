@@ -1,10 +1,9 @@
 package com.brtvsk.auth.utils
 
+import com.brtvsk.auth.models.Avatar
 import com.brtvsk.auth.models.User
-import com.brtvsk.auth.repository.tables.UserAvatars
-import com.brtvsk.auth.repository.tables.GeoTags
-import com.brtvsk.auth.repository.tables.UserTags
-import com.brtvsk.auth.repository.tables.Users
+import com.brtvsk.auth.repository.tables.*
+import com.brtvsk.avatar.model.AvatarCondition
 import com.brtvsk.geo.models.FavTag
 import com.brtvsk.geo.models.GeoTag
 import com.brtvsk.geo.models.GeoType
@@ -45,5 +44,13 @@ fun ResultRow?.toFavTag(): FavTag? = this?.let {
         tagName = this[GeoTags.name],
         tagType = this[GeoTags.type]?.let { GeoType.valueOf(it) },
         isFav = this[UserTags.tagId.isNotNull()]
+    )
+}
+
+fun ResultRow?.toAvatarCondition(): AvatarCondition? = this?.let {
+    return AvatarCondition(
+        avatar = Avatar.valueOf(this[AvatarConditions.avatar]),
+        condition = GeoTag(this[GeoTags.name], this[GeoTags.type]?.let { GeoType.valueOf(it) }),
+        target = this[AvatarConditions.target]
     )
 }

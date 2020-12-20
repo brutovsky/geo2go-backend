@@ -6,5 +6,6 @@ enum class Avatar{
     Cheems,
     Default,
     Stronk,
-    CoolPepe
+    CoolPepe,
+    MarioGuy
 }

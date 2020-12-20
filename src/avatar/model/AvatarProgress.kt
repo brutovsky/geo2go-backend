@@ -7,7 +7,6 @@ import com.brtvsk.geo.models.Point
 import java.io.Serializable
 
 data class AvatarProgress(
-    val avatarId: Int,
     val userId: Int,
     val avatar: Avatar,
     val counter: Int,

@@ -7,9 +7,11 @@ import com.brtvsk.auth.repository.UserRepository
 import com.brtvsk.geo.dto.GeoDTO
 import com.brtvsk.geo.models.Geo
 import com.brtvsk.geo.models.GeoTag
+import com.brtvsk.geo.models.GeoType
 import com.brtvsk.geo.models.Point
 import com.brtvsk.geo.repository.GeoRepository
 import org.bson.types.ObjectId
+import kotlin.math.min
 
 class GeoService {
 
@@ -72,6 +74,14 @@ class GeoService {
 
     suspend fun getVisited(userId: Int, geoId: String) : VisitedGeo?{
         return geoRepository.findVisitedGeo(userId, geoId)
+    }
+
+    suspend fun getRecommendedGeos(userId: Int, type: GeoType, point: Point, range: IntRange) : List<Geo>{
+        val userFavTags = userRep.getFavTags(userId).filter { it.isFav }.map { it.tagId }
+        return geoRepository.getNearGeos(userId,type.name,point,range).toList().map {geo ->
+            val a = geo.tags.toList()
+            geo to a.intersect(userFavTags).map { x -> min(a.count {it == x}, userFavTags.count {it == x}) }.sum()
+        }.sortedBy { it.second }.map { it.first }
     }
 
 }

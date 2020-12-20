@@ -12,7 +12,7 @@ data class Geo(
     val userId: Int,
     val point:Point,
     val type: GeoType,
-    val tags: Set<String>,
+    val tags: Set<Int>,
     val raiting: Map<Integer, Integer>,
     val description: String,
 )

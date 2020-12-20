@@ -26,8 +26,10 @@ const val GEO_CHECK_IN = "$GEO/checkin"
 const val GEO_ALL_VISITED_GEOS = "$GEO_ALL/visited"
 const val GEO_VISITED_GEOS = "$GEO/visited"
 
-const val GEO_ALL_GEOTYPES = "$GEO/geotypes"
-const val GEO_ALL_GEOTAGS = "$GEO/geotags"
+const val GEO_ALL_TYPES = "$GEO/types"
+const val GEO_ALL_TAGS = "$GEO/tags"
+
+const val GEO_RECOMMENDATIONS = "$GEO/recommend"
 
 @KtorExperimentalLocationsAPI
 @Location(GEO_GET)
@@ -54,12 +56,17 @@ class GeoAllVisitedRoute
 class GeoVisitedRoute
 
 @KtorExperimentalLocationsAPI
-@Location(GEO_ALL_GEOTYPES)
+@Location(GEO_ALL_TYPES)
 class GeoAllGeoTypesRoute
 
 @KtorExperimentalLocationsAPI
-@Location(GEO_ALL_GEOTAGS)
+@Location(GEO_ALL_TAGS)
 class GeoAllGeoTagsRoute
+
+@KtorExperimentalLocationsAPI
+@Location(GEO_RECOMMENDATIONS)
+class GeoGetRecommendedRoute
+
 
 @KtorExperimentalLocationsAPI
 fun Route.geo(
@@ -124,9 +131,9 @@ fun Route.geo(
 
             val geoId = call.receive<ObjectId>()
 
-            geoService.visitGeo(user.userId, geoId.toHexString())
-
-            avatarProgressHandler.handleCheckIn(geoId)
+            val visitedGeo = geoService.visitGeo(user.userId, geoId.toHexString())?.let{
+                avatarProgressHandler.handleCheckIn(user.userId,it)
+            }
 
             val geo = geoService.getGeo(geoId)
             geo?.let {

@@ -13,6 +13,7 @@ data class AvatarCondition(
 ) : Serializable
 
 val avatarConditions:List<AvatarCondition> = listOf(
+    AvatarCondition(Avatar.MarioGuy, 4, geoTags.first { it.tag == "sadistic" }),
     AvatarCondition(Avatar.Stronk, 2, geoTags.first { it.tag == "motivating" }),
     AvatarCondition(Avatar.CoolPepe, 1, geoTags.first { it.tag == "cool" }),
 )

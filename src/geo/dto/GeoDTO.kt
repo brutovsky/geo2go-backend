@@ -9,7 +9,7 @@ object GeoDTO {
         val lat: Double,
         val lng: Double,
         val type: GeoType,
-        val tags: List<String>,
+        val tags: List<Int>,
         val raiting: Map<Integer,Integer>,
         val description: String,
     )
@@ -20,7 +20,7 @@ object GeoDTO {
         val lat: Double,
         val lng: Double,
         val type: String,
-        val tags: Set<String>,
+        val tags: Set<Int>,
         val raiting: Map<Integer,Integer>,
         val description: String,
     )

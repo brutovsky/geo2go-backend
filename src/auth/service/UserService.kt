@@ -3,6 +3,8 @@ package com.brtvsk.auth.service
 import com.brtvsk.auth.models.User
 import com.brtvsk.auth.models.VisitedGeo
 import com.brtvsk.auth.repository.UserRepository
+import com.brtvsk.avatar.model.AvatarCondition
+import com.brtvsk.avatar.model.AvatarProgress
 import com.brtvsk.geo.models.FavTag
 import com.brtvsk.geo.models.GeoTag
 import com.brtvsk.geo.models.UserFavTag
@@ -51,6 +53,14 @@ class UserService {
 
     suspend fun getFavTags(userId: Int) : List<FavTag>{
         return userRep.getFavTags(userId)
+    }
+
+    suspend fun updateAvatarProgress(userId: Int, tagIds: List<Int>) {
+        userRep.updateAvatarProgress(userId, tagIds)
+    }
+
+    suspend fun getAvatarConditions(avatars: List<String>) : List<AvatarCondition>{
+        return userRep.getAvatarConditions(avatars)
     }
 
 }

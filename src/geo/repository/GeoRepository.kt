@@ -4,9 +4,11 @@ import com.brtvsk.auth.models.VisitedGeo
 import com.brtvsk.auth.repository.DatabaseFactory
 import com.brtvsk.auth.repository.tables.VisitedGeos
 import com.brtvsk.geo.MongoDB.MongoDB
+import com.brtvsk.geo.models.FavTag
 import com.brtvsk.geo.models.Geo
 import com.brtvsk.geo.models.GeoType
 import com.brtvsk.geo.models.Point
+import com.mongodb.client.FindIterable
 import org.bson.types.ObjectId
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.statements.InsertStatement
@@ -18,7 +20,7 @@ class GeoRepository:Repository{
     private val geo = MongoDB.mongoDB.getCollection<Geo>(Geos.COL_GEOS)
 
     override suspend fun addGeo(userId:Int, point: Point,
-                                type: GeoType, tags: Set<String>,
+                                type: GeoType, tags: Set<Int>,
                                 raiting: Map<Integer, Integer>, description: String): Geo? {
         val id = ObjectIdGenerator.newObjectId<Geo>().id
         geo.insertOne(Geo(id,userId,point,type,tags,raiting, description))
@@ -72,6 +74,25 @@ class GeoRepository:Repository{
     override suspend fun getAllVisited(userId: Int) = DatabaseFactory.dbQuery {
         VisitedGeos.select { (VisitedGeos.userId eq userId) }
             .mapNotNull { rowToVisitedGeo(it) }
+    }
+
+    override suspend fun getNearGeos(userId: Int, geoType:String, point:Point, range: IntRange): FindIterable<Geo> {
+        return geo.find("""
+            db.Geo.find(
+               {
+                 type: { ${MongoOperator.eq}: $geoType } ,
+                 userId: { ${MongoOperator.ne}: $userId } ,
+                 point:
+                   { ${MongoOperator.near} :
+                      {
+                                    "$ geometry" : { type: "Point",  coordinates: [ ${point.coordinates[0]}, ${point.coordinates[1]} ] },
+                                    "$ minDistance" : ${range.first},
+                                    "$ maxDistance" : ${range.last}
+                      }
+                   }
+               }
+            )
+        """.trimIndent())
     }
 
     private fun rowToVisitedGeo(row: ResultRow?): VisitedGeo?{

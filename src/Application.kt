@@ -45,7 +45,7 @@ fun Application.module(testing: Boolean = false) {
     // Geos DB init
     val userService = UserService()
     val geoService = GeoService()
-    val avatarProgressHandler = AvatarProgressHandler(geoService)
+    val avatarProgressHandler = AvatarProgressHandler()
 
     install(Authentication) {
         jwt("jwt") {
