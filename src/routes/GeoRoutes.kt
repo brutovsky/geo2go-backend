@@ -6,6 +6,7 @@ import com.brtvsk.auth.utils.MySession
 import com.brtvsk.avatar.handler.AvatarProgressHandler
 import com.brtvsk.geo.dto.GeoDTO
 import com.brtvsk.geo.models.GeoType
+import com.brtvsk.geo.models.Point
 import com.brtvsk.geo.repository.Repository
 import com.brtvsk.geo.service.GeoService
 import io.ktor.application.*
@@ -74,6 +75,36 @@ fun Route.geo(
     avatarProgressHandler: AvatarProgressHandler
 ) {
     authenticate("jwt") {
+
+        get<GeoGetRecommendedRoute>{
+            val user = call.sessions.get<MySession>()?.let { geoService.findUser(it.userId) }
+            if (user == null) {
+                call.respond(HttpStatusCode.BadRequest, "Problems retrieving User")
+                return@get
+            }
+            try {
+                val geoType: String = call.request.queryParameters["geoType"] ?: return@get call.respond(
+                    HttpStatusCode.BadRequest, "Missing query parameters :/"
+                )
+                val lat: String = call.request.queryParameters["lat"] ?: return@get call.respond(
+                    HttpStatusCode.BadRequest, "Missing query parameters :/"
+                )
+                val lng: String = call.request.queryParameters["lng"] ?: return@get call.respond(
+                    HttpStatusCode.BadRequest, "Missing query parameters :/"
+                )
+                val minDistance: String = call.request.queryParameters["lng"] ?: return@get call.respond(
+                    HttpStatusCode.BadRequest, "Missing query parameters :/"
+                )
+                val maxDistance: String = call.request.queryParameters["lng"] ?: return@get call.respond(
+                    HttpStatusCode.BadRequest, "Missing query parameters :/"
+                )
+                val geos = geoService.getRecommendedGeos(user.userId,GeoType.valueOf(geoType), Point(coordinates = listOf(lat.toDouble(),lng.toDouble())),minDistance.toInt()..maxDistance.toInt())
+                call.respond(geos)
+            } catch (e: Throwable) {
+                application.log.error("Failed to get Geos", e)
+                call.respond(HttpStatusCode.BadRequest, "Problems getting Geos")
+            }
+        }
 
         get<GeoAllRoutes>{
             val user = call.sessions.get<MySession>()?.let { geoService.findUser(it.userId) }
