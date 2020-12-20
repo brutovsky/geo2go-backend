@@ -1,7 +1,7 @@
 package com.brtvsk.auth.utils
 
 import com.brtvsk.auth.models.User
-import com.brtvsk.auth.repository.tables.Avatars
+import com.brtvsk.auth.repository.tables.UserAvatars
 import com.brtvsk.auth.repository.tables.GeoTags
 import com.brtvsk.auth.repository.tables.UserTags
 import com.brtvsk.auth.repository.tables.Users
@@ -22,7 +22,7 @@ fun ResultRow?.toUser(): User? = this?.let {
     )
 }
 
-fun ResultRow?.toAvatar(): String? = this?.let { this[Avatars.avatar] }
+fun ResultRow?.toAvatar(): String? = this?.let { this[UserAvatars.avatar] }
 
 fun ResultRow?.toGeoTag(): GeoTag? = this?.let {
     GeoTag(

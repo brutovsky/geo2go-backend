@@ -1,16 +1,17 @@
 package com.brtvsk.auth.repository
 
 import com.brtvsk.auth.repository.tables.*
+import com.brtvsk.auth.utils.toGeoTag
+import com.brtvsk.auth.utils.toUser
+import com.brtvsk.avatar.model.avatarConditions
 import com.brtvsk.geo.models.geoTags
 import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import org.jetbrains.exposed.sql.Database
-import org.jetbrains.exposed.sql.SchemaUtils
-import org.jetbrains.exposed.sql.batchInsert
-import org.jetbrains.exposed.sql.exists
+import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.transactions.transaction
+import org.litote.kmongo.cond
 
 object DatabaseFactory {
 
@@ -19,7 +20,7 @@ object DatabaseFactory {
 
         transaction {
             SchemaUtils.create(Users)
-            SchemaUtils.create(Avatars)
+            SchemaUtils.create(UserAvatars)
             SchemaUtils.create(VisitedGeos)
             if(!GeoTags.exists()){
                 SchemaUtils.create(GeoTags)
@@ -29,6 +30,19 @@ object DatabaseFactory {
                 }
             }
             SchemaUtils.create(UserTags)
+            if(!AvatarConditions.exists()){
+                SchemaUtils.create(AvatarConditions)
+                val conditionsWithTagIds = avatarConditions.map { condition ->
+                    condition to GeoTags.select{ ( (GeoTags.name eq (condition.condition.tag)) and (GeoTags.type eq condition.condition.type?.name) ) }.map { it.toGeoTag() }.singleOrNull()
+                }
+                AvatarConditions.batchInsert(conditionsWithTagIds) { (condition, tagId) ->
+                    this[AvatarConditions.avatar] = condition.avatar.name
+                    this[AvatarConditions.target] = condition.target
+                    this[AvatarConditions.tagId] = tagId?.id ?: -1
+                }
+            }
+            SchemaUtils.create(AvatarConditions)
+            SchemaUtils.create(AvatarProgress)
         }
     }
 

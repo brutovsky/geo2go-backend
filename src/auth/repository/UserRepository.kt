@@ -1,24 +1,16 @@
 package com.brtvsk.auth.repository
 
 import com.brtvsk.auth.models.User
-import com.brtvsk.auth.models.VisitedGeo
 import com.brtvsk.auth.repository.DatabaseFactory.dbQuery
 import com.brtvsk.auth.repository.tables.*
 import com.brtvsk.auth.utils.toAvatar
 import com.brtvsk.auth.utils.toFavTag
 import com.brtvsk.auth.utils.toUser
 import com.brtvsk.auth.utils.toUserFavTag
-import com.brtvsk.geo.models.FavTag
-import com.brtvsk.geo.models.GeoTag
-import com.brtvsk.geo.models.GeoType
-import com.brtvsk.geo.models.UserFavTag
+import com.brtvsk.avatar.model.AvatarProgress
 import org.jetbrains.exposed.sql.*
-import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.isNotNull
 import org.jetbrains.exposed.sql.statements.InsertStatement
-import org.jetbrains.exposed.sql.statements.Statement
-import org.jetbrains.exposed.sql.transactions.TransactionManager
-import org.jetbrains.exposed.sql.transactions.transaction
 
 class UserRepository : Repository {
 
@@ -65,16 +57,16 @@ class UserRepository : Repository {
     override suspend fun addAvatar(userId: Int, avatar: String): String? {
         var statement: InsertStatement<Number>? = null
         dbQuery {
-            statement = Avatars.insert {
-                it[Avatars.userId] = userId
-                it[Avatars.avatar] = avatar
+            statement = UserAvatars.insert {
+                it[UserAvatars.userId] = userId
+                it[UserAvatars.avatar] = avatar
             }
         }
         return (statement?.resultedValues?.get(0)).toAvatar()
     }
 
     override suspend fun getAvatars(userId: Int) = dbQuery {
-        Avatars.select { Avatars.userId.eq(userId) }
+        UserAvatars.select { UserAvatars.userId.eq(userId) }
             .mapNotNull { it.toAvatar() }
     }
 
@@ -95,6 +87,8 @@ class UserRepository : Repository {
         val res = complexJoin.slice(GeoTags.id, GeoTags.name, GeoTags.type, UserTags.tagId.isNotNull())
         res.selectAll().mapNotNull { it.toFavTag() }
     }
+
+    override suspend fun updateAvatarProgress(tagId:Int) = listOf<AvatarProgress>()
 
 }
 

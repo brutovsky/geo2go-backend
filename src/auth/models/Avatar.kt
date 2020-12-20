@@ -4,5 +4,7 @@ enum class Avatar{
     Pepe,
     Geco,
     Cheems,
-    Default
+    Default,
+    Stronk,
+    CoolPepe
 }
