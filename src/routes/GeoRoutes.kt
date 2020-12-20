@@ -113,7 +113,7 @@ fun Route.geo(
                 return@get
             }
             try {
-                val geos = geoService.getAllGeos(user.userId)
+                val geos = geoService.getAllGeos()
                 call.respond(geos)
             } catch (e: Throwable) {
                 application.log.error("Failed to get Geos", e)
@@ -193,7 +193,6 @@ fun Route.geo(
                         lng = newGeo.point.coordinates[1],
                         type = newGeo.type.name,
                         tags = newGeo.tags,
-                        raiting = newGeo.raiting,
                         description = newGeo.description
                     )
                 )

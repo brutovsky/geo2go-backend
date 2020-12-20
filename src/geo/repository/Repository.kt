@@ -11,10 +11,10 @@ import org.bson.types.ObjectId
 interface Repository {
     suspend fun addGeo(userId:Int, point: Point,
                        type: GeoType, tags: Set<Int>,
-                       raiting: Map<Integer, Integer>, description: String): Geo?
+                       description: String): Geo?
     suspend fun findGeo(point:Point): Geo?
     suspend fun findGeo(geoId:ObjectId): Geo?
-    suspend fun getAll(userId: Int): List<Geo>
+    suspend fun getAll(): List<Geo>
     suspend fun addVisitedGeo(userId: Int, geoId:String): VisitedGeo?
     suspend fun findVisitedGeo(userId: Int, geoId:String): VisitedGeo?
     suspend fun incrementVisitedGeo(userId:Int, geoId: String) : Int

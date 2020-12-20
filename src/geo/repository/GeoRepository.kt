@@ -21,9 +21,9 @@ class GeoRepository:Repository{
 
     override suspend fun addGeo(userId:Int, point: Point,
                                 type: GeoType, tags: Set<Int>,
-                                raiting: Map<Integer, Integer>, description: String): Geo? {
+                                description: String): Geo? {
         val id = ObjectIdGenerator.newObjectId<Geo>().id
-        geo.insertOne(Geo(id,userId,point,type,tags,raiting, description))
+        geo.insertOne(Geo(id,userId,point,type,tags, description))
         return geo.findOne(Geo::_id eq id)
     }
 
@@ -37,8 +37,8 @@ class GeoRepository:Repository{
 
     override suspend fun findGeosByIds(geoIds: List<ObjectId>) = geo.find(Geo::_id `in` geoIds).toList()
 
-    override suspend fun getAll(userId: Int): List<Geo>{
-        val found = geo.find(Geo::userId eq userId)
+    override suspend fun getAll(): List<Geo>{
+        val found = geo.find()
         return found.toList()
     }
 

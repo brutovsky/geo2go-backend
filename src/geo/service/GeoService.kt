@@ -27,7 +27,7 @@ class GeoService {
     suspend fun createGeo(userId:Int, geoData: GeoDTO.RequestGeo): Geo? {
         val point = Point(coordinates = listOf(geoData.lat,geoData.lng))
         val tags = geoData.tags.toSet()
-        return geoRepository.addGeo(userId, point, geoData.type, tags, geoData.raiting, geoData.description)
+        return geoRepository.addGeo(userId, point, geoData.type, tags, geoData.description)
     }
 
     suspend fun getGeo(geoId: ObjectId): Geo? {
@@ -38,8 +38,8 @@ class GeoService {
         return geoRepository.findGeo(point)
     }
 
-    suspend fun getAllGeos(userId: Int): List<Geo>{
-        return geoRepository.getAll(userId)
+    suspend fun getAllGeos(): List<Geo>{
+        return geoRepository.getAll()
     }
 
     suspend fun setFavGeoTags(geoTags: List<Int>): Set<GeoTag>{
@@ -67,7 +67,7 @@ class GeoService {
         val geos = geoRepository.findGeosByIds(visitedWithObjectIds.map{it.first})
         return visitedWithObjectIds.map{visited ->
             val geo = geos.find { it._id == visited.first } ?: throw Exception("ObjectId not found")
-            val respondGeo = GeoDTO.RespondGeo(geo._id,geo.userId,geo.point.coordinates[0],geo.point.coordinates[1],geo.type.name, geo.tags, geo.raiting, geo.description)
+            val respondGeo = GeoDTO.RespondGeo(geo._id,geo.userId,geo.point.coordinates[0],geo.point.coordinates[1],geo.type.name, geo.tags, geo.description)
             GeoDTO.RespondVisitedGeo(respondGeo,visited.second)
         }
     }

@@ -13,6 +13,5 @@ data class Geo(
     val point:Point,
     val type: GeoType,
     val tags: Set<Int>,
-    val raiting: Map<Integer, Integer>,
     val description: String,
 )
